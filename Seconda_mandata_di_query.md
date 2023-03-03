@@ -36,6 +36,7 @@ FROM `degrees`
 INNER JOIN `departments`
 ON `degrees`.`department_id` = `departments`.`id`
 WHERE `departments`.`name` = 'Dipartimento di Neuroscienze'
+AND `degrees`.`level` = 'magistrale'
 
 3. Selezionare tutti i corsi in cui insegna Fulvio Amato (id=44)
 SELECT `courses`.*, `teachers`.`name` AS `teacher_name`, `teachers`.`surname` AS `teacher_surname`
@@ -48,12 +49,10 @@ WHERE `teachers`.`id` = 44
 
 4. Selezionare tutti gli studenti con i dati relativi al corso di laurea a cui sono iscritti e il
 relativo dipartimento, in ordine alfabetico per cognome e nome
-SELECT `students`.`name` AS `student_name`,`students`.`surname` AS `student_surname`, `courses`.*, `departments`.`name` 
+SELECT `students`.`name` AS `student_name`,`students`.`surname` AS `student_surname`, `degrees`.`name`, `departments`.`name` 
 FROM `students`
 INNER JOIN `degrees`
 ON `students`.`degree_id` = `degrees`.`id`
-INNER JOIN `courses`
-ON `degrees`.`id` = `courses`.`degree_id`
 INNER JOIN `departments`
 ON `degrees`.`department_id` = `departments`.`id`
 ORDER BY `students`.`surname`, `students`.`name`
@@ -85,3 +84,12 @@ ORDER BY `teachers`.`name`
 
 7. BONUS: Selezionare per ogni studente quanti tentativi d’esame ha sostenuto per
 superare ciascuno dei suoi esami
+SELECT `students`.`id` AS `student_id`, `students`.`name` AS `student_name`,`students`.`surname` AS `student_surname`, COUNT(`exam_student`.`exam_id`) AS `numero_tentativi`, MAX(`exam_student`.`vote`) AS `voto_massimo`, `exams`.`course_id` 
+FROM `students`
+INNER JOIN `exam_student`
+ON `students`.`id` = `exam_student`.`student_id` 
+INNER JOIN `exams`
+ON `exam_student`.`exam_id` = `exams`.`id`
+GROUP BY `exams`.`course_id`, `students`.`id`, `students`.`surname`, `students`.`name`
+HAVING `voto_massimo` >= 18
+ORDER BY `students`.`surname`, `students`.`name`
